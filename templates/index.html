@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="ko">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Single+Day&display=swap" rel="stylesheet">
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+            integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+            crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+            integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+            crossorigin="anonymous"></script>
+
+    <title>따봉댕댕 원목식탁</title>
+
+    <style>
+        * {
+            font-family: 'Single Day', cursive;
+        }
+
+        .myitem {
+            width: 600px;
+            height: 400px;
+            border-radius: 10px;
+
+            background-image: url("https://search.pstatic.net/common/?src=http%3A%2F%2Fshop1.phinf.naver.net%2F20210809_276%2F1628518291742GIISU_JPEG%2F29654190450034502_252533649.jpg&type=sc960_832");
+            background-position: center;
+            background-size: cover;
+        }
+
+        .font_rate {
+            font-size: 25px;
+            color: blue;
+        }
+
+        .desc {
+            width: 600px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .order-box {
+            width: 600px;
+            margin-bottom: 40px;
+        }
+
+        .mybtn {
+            width: 100px;
+            margin: auto;
+            display: block;
+        }
+
+        .wrap {
+            margin: auto;
+            width: 600px;
+        }
+
+        .rate {
+            color: blue;
+        }
+    </style>
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                type: "GET",
+                url: "https://api.manana.kr/exchange/rate.json",
+                data: {},
+                success: function (response) {
+                    let nowRate = response[1]['rate'];
+                    $('#rate-box').text(nowRate);
+                }
+            })
+            order_listing();
+        });
+
+        function order_listing() {
+            // 주문목록 보기 API 연결
+            $.ajax({
+                type: "GET",
+                url: "/order",
+                data: {},
+                success: function (response) {
+                    let order_txt=response['all_order_txt']
+
+                    for(i=0; i<order_txt.length; i++) {
+                        let name=order_txt[i]['name']
+                        let quantity=order_txt[i]['quantity']
+                        let address=order_txt[i]['address']
+                        let phone=order_txt[i]['phone']
+
+                        let temp_html=`
+                            <tr>
+                                <th scope="row">${name}</th>
+                                <td>${quantity}</td>
+                                <td>${address}</td>
+                                <td>${phone}</td>
+                            </tr>`
+                        $('#order-box').append(temp_html)
+                    }
+
+
+                }
+            })
+        }
+
+        function order() {
+            let name=$('#order-name').val()
+            let quantity=$('#order-count').val()
+            let address=$('#order-address').val()
+            let phone=$('#order-phone').val()
+
+            // 주문하기 API 연결
+            $.ajax({
+                type: "POST",
+                url: "/order",
+                data: {name_give:name, quantity_give:quantity, address_give:address, phone_give:phone},
+                success: function (response) { // 성공하면
+                    alert(response["msg"]);
+                    window.location.reload()
+                }
+            })
+        }
+    </script>
+</head>
+
+<body>
+<div class="wrap">
+    <div class="myitem"></div>
+    <div class="desc">
+        <p>
+        <h2>따봉댕댕 원목식탁<span class="font_rate">가격: 18,000원/개</span></h2></p>
+        <p>낮은 식기사용은 소화불량이 생길 수 있다는 사실!</p>
+        <p>댕댕이들은 목이 뻣뻣하기 때문에 낮은 식기를 사용하면 고개를 깊숙이 숙여서 먹어야 하기 때문에<br>급하게 먹게 되면 목에 걸리기 쉽고 소화불량의 원인이 될 수 있어요.</p>
+        <p class="rate">달러-원 환율: <span id="rate-box">1,000</span></p>
+    </div>
+    <div class="order-box">
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text" id="inputGroup-sizing-default">주문자이름</span>
+            </div>
+            <input id="order-name" type="text" class="form-control" aria-label="Default"
+                   aria-describedby="inputGroup-sizing-default">
+        </div>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="inputGroupSelect01">수량</label>
+            </div>
+            <select id="order-count" class="custom-select">
+                <option selected>-- 수량을 선택하세요 --</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+            </select>
+        </div>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text" id="inputGroup-sizing-default">주소</span>
+            </div>
+            <input id="order-address" type="text" class="form-control" aria-label="Default"
+                   aria-describedby="inputGroup-sizing-default">
+        </div>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text" id="inputGroup-sizing-default">전화번호</span>
+            </div>
+            <input id="order-phone" type="text" class="form-control" aria-label="Default"
+                   aria-describedby="inputGroup-sizing-default">
+        </div>
+        <button onclick="order()" type="button" class="btn btn-primary mybtn">주문하기</button>
+    </div>
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">이름</th>
+            <th scope="col">수량</th>
+            <th scope="col">주소</th>
+            <th scope="col">전화번호</th>
+        </tr>
+        </thead>
+        <tbody id="order-box">
+
+        </tbody>
+    </table>
+</div>
+</body>
+
+</html>
